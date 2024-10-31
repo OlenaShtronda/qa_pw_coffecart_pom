@@ -7,6 +7,5 @@ test('Check Espresso removed from Cart after clicking remove button', async ({ p
   await page.waitForURL('https://coffee-cart.app/cart');
   await page.getByLabel('Remove all Espresso').click();
 
-  // ToDo: Assert the message "No coffee, go add some." is visible on the page.
   await expect(page.getByText('No coffee, go add some.')).toBeVisible(); 
 });

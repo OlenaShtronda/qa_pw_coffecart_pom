@@ -8,4 +8,8 @@ export class CartPage {
   async open() {
     
   }
+
+  async waitForLoading() {
+    await this.page.waitForURL('https://coffee-cart.app/cart');
+  }
 }
