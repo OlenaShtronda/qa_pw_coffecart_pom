@@ -1,49 +1,24 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
+import { MenuPage } from '../../src/pages/MenuPage';
+import { CartPage } from '../../src/pages/CartPage';
 
-test('Discounted Mocha added to the Cart after promo accepting', async ({
-  page,
-}) => {
-  await page.goto('https://coffee-cart.app/');
-  await page.getByTestId('Cappuccino').click();
-  await page.getByTestId('Espresso').click();
-  await page.getByTestId('Americano').click();
-  await expect(
-    page.getByText("It's your lucky day! Get an extra cup of Mocha for $4."),
-  ).toBeVisible();
-  await page.getByRole('button', { name: 'Yes, of course!' }).click();
-  await page.getByLabel('Cart page').click();
-  await page.waitForURL('https://coffee-cart.app/cart');
+test('Discounted Mocha added to the Cart after promo accepting', async ({ page }) => {
+  const menuPage = new MenuPage(page);
+  const cartPageEspresso = new CartPage(page, 'Espresso');
+  const cartPageMocha = new CartPage(page, '(Discounted) Mocha');
+  const cartPageCappuccino = new CartPage(page, 'Cappuccino');
+  const cartPageAmericano = new CartPage(page, 'Americano');
 
-  const cartLocator = page.getByRole('list').nth(1);
-  // Espresso
-  const espressoItem = cartLocator
-    .getByRole('listitem')
-    .filter({ hasText: 'Espresso' });
-  const espressoTotalCost = espressoItem.locator('div').nth(3);
-
-  await expect(espressoTotalCost).toContainText('$10.00');
-
-  // (Discounted) Mocha
-  const mochaDiscountedItem = cartLocator
-    .getByRole('listitem')
-    .filter({ hasText: '(Discounted) Mocha' });
-  const mochaDiscountedTotalCost = mochaDiscountedItem.locator('div').nth(3);
-
-  await expect(mochaDiscountedTotalCost).toContainText('$4.00');
-
-  // Cappuccino
-  const cappuccinoItem = cartLocator
-    .getByRole('listitem')
-    .filter({ hasText: 'Cappuccino' });
-  const cappuccinoTotalCost = cappuccinoItem.locator('div').nth(3);
-
-  await expect(cappuccinoTotalCost).toContainText('$19.00');
-
-  // Americano
-  const americanoItem = cartLocator
-    .getByRole('listitem')
-    .filter({ hasText: 'Americano' });
-  const americanoTotalCost = americanoItem.locator('div').nth(3);
-
-  await expect(americanoTotalCost).toContainText('$7.00');
+  await menuPage.open();
+  await menuPage.clickCup('Cappuccino');
+  await menuPage.clickCup('Espresso');
+  await menuPage.clickCup('Americano');
+  await menuPage.assertPromoTextIsVisible();
+  await menuPage.clickYesButton();
+  await menuPage.clickCartLink();
+  await cartPageEspresso.waitForLoading();
+  await cartPageEspresso.assertTotalColumnContainsCorrectText('$10.00');
+  await cartPageMocha.assertTotalColumnContainsCorrectText('$4.00');
+  await cartPageCappuccino.assertTotalColumnContainsCorrectText('$19.00');
+  await cartPageAmericano.assertTotalColumnContainsCorrectText('$7.00');
 });

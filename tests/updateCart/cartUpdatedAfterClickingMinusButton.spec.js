@@ -1,27 +1,22 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
+import { MenuPage } from '../../src/pages/MenuPage';
+import { CartPage } from '../../src/pages/CartPage';
 
-test('Cart updated correctly after clicking minus for drinks', async ({
-  page,
-}) => {
-  await page.goto('https://coffee-cart.app/');
-  await page.getByTestId('Cappuccino').click();
-  await page.getByTestId('Espresso').click();
-  await page.getByLabel('Cart page').click();
-  await page.waitForURL('https://coffee-cart.app/cart');
+test('Cart updated correctly after clicking minus for drinks', async ({ page }) => {
+  const menuPage = new MenuPage(page, 'Espresso');
+  const cartPageCappuccino = new CartPage(page, 'Cappuccino');
+  const cartPageEspresso = new CartPage(page, 'Espresso');
 
-  const cartLocator = page.getByRole('list').nth(1);
-  const espressoItem = cartLocator.getByRole('listitem').filter({
-    hasText: 'Espresso',
-  });
-  const cappuccinoItem = cartLocator.getByRole('listitem').filter({
-    hasText: 'Cappuccino',
-  });
-
-  await expect(espressoItem).toBeVisible();
-  await page.getByRole('button', { name: 'Remove one Espresso' }).click();
-  await expect(espressoItem).toBeHidden();
-  await expect(cappuccinoItem).toBeVisible();
-  await page.getByRole('button', { name: 'Remove one Cappuccino' }).click();
-  await expect(cappuccinoItem).toBeHidden();
-  await expect(page.getByText('No coffee, go add some.')).toBeVisible();
+  await menuPage.open();
+  await menuPage.clickCup('Cappuccino');
+  await menuPage.clickCup('Espresso');
+  await menuPage.clickCartLink();
+  await cartPageEspresso.waitForLoading();
+  await cartPageEspresso.assertItemIsVisible();
+  await cartPageEspresso.removeOneEspresso();
+  await cartPageEspresso.assertItemIsHidden();
+  await cartPageCappuccino.assertItemIsVisible();
+  await cartPageCappuccino.removeOneCappuccino();
+  await cartPageCappuccino.assertItemIsHidden();
+  await cartPageCappuccino.assertEmptyCartShowsCorrectMessage();
 });

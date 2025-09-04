@@ -1,30 +1,23 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
+import { MenuPage } from '../../src/pages/MenuPage';
+import { CartPage } from '../../src/pages/CartPage';
 
-test('Cart updated correctly after clicking plus for drinks', async ({
-  page,
-}) => {
-  await page.goto('https://coffee-cart.app/');
-  await page.getByTestId('Cappuccino').click();
-  await page.getByTestId('Espresso').click();
-  await page.getByLabel('Cart page').click();
-  await page.waitForURL('https://coffee-cart.app/cart');
+test('Cart updated correctly after clicking plus for drinks', async ({ page }) => {
+  const menuPage = new MenuPage(page, 'Espresso');
+  const cartPageCappuccino = new CartPage(page, 'Cappuccino');
+  const cartPageEspresso = new CartPage(page, 'Espresso');
 
-  const cartLocator = page.getByRole('list').nth(1);
-  const espressoItem = cartLocator
-    .getByRole('listitem')
-    .filter({ hasText: 'Espresso' });
-  const espressoTotalCost = espressoItem.locator('div').nth(3);
-  const cappuccinoItem = cartLocator
-    .getByRole('listitem')
-    .filter({ hasText: 'Cappuccino' });
-  const cappuccinoTotalCost = cappuccinoItem.locator('div').nth(3);
-
-  await expect(espressoTotalCost).toContainText('$10.00');
-  await page.getByRole('button', { name: 'Add one Espresso' }).click();
-  await expect(espressoTotalCost).toContainText('$20.00');
-  await expect(cappuccinoTotalCost).toContainText('$19.00');
-  await page.getByRole('button', { name: 'Add one Cappuccino' }).click();
-  await expect(cappuccinoTotalCost).toContainText('$38.00');
-  await expect(espressoTotalCost).toContainText('$20.00');
-  await expect(page.getByTestId('checkout')).toContainText('$58.00');
+  await menuPage.open();
+  await menuPage.clickCup('Cappuccino');
+  await menuPage.clickCup('Espresso');
+  await menuPage.clickCartLink();
+  await cartPageEspresso.waitForLoading();
+  await cartPageEspresso.assertTotalColumnContainsCorrectText('$10.00');
+  await cartPageEspresso.addOneEspresso();
+  await cartPageEspresso.assertTotalColumnContainsCorrectText('$20.00');
+  await cartPageCappuccino.assertTotalColumnContainsCorrectText('$19.00');
+  await cartPageCappuccino.addOneCappuccino();
+  await cartPageCappuccino.assertTotalColumnContainsCorrectText('$38.00');
+  await cartPageEspresso.assertTotalColumnContainsCorrectText('$20.00');
+  await cartPageEspresso.assertCheckoutContainsCorrectText('$58.00');
 });

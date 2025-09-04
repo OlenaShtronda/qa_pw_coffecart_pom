@@ -1,7 +1,10 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
+import { MenuPage } from '../../src/pages/MenuPage';
 
 test('Espresso cost is added to Total on menu page', async ({ page }) => {
-  await page.goto('https://coffee-cart.app/');
-  await page.getByTestId('Espresso').click();
-  await expect(page.getByTestId('checkout')).toContainText('Total: $10.00');
+  const menuPage = new MenuPage(page, 'Espresso');
+
+  await menuPage.open();
+  await menuPage.clickCup();
+  await menuPage.assertCheckoutContainsCorrectText('Total: $10.00');
 });
