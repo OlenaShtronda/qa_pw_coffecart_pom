@@ -1,3 +1,3 @@
-# Playwright: Practice task for Coffee Cart POM.
+# Playwright: Practice task for Coffee Cart POM
 
-This repo contains the list of CoffeCart test cases wich need to be updated according to POM. 
+This repo contains the list of CoffeCart test cases which had to be updated according to Page Object Model (POM). 
