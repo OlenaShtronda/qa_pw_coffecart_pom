@@ -3,16 +3,14 @@ import { MenuPage } from '../../src/pages/MenuPage';
 import { CartPage } from '../../src/pages/CartPage';
 
 test('Cappuccino correctly added to the Cart', async ({ page }) => {
-  const menuPage = new MenuPage(page, 'Cappuccino');
+  const menuPage = new MenuPage(page);
+  const cartPage = new CartPage(page);
 
   await menuPage.open();
-  await menuPage.clickCup();
+  await menuPage.clickCup('Cappuccino');
   await menuPage.clickCartLink();
-
-  const cartPageCappuccino = new CartPage(page, 'Cappuccino');
-
-  await cartPageCappuccino.waitForLoading();
-  await cartPageCappuccino.assertItemColumnContainsCorrectText();
-  await cartPageCappuccino.assertUnitColumnContainsCorrectText('$19.00 x 1');
-  await cartPageCappuccino.assertTotalColumnContainsCorrectText('$19.00');
+  await cartPage.waitForLoading();
+  await cartPage.assertItemColumnContainsCorrectText('Cappuccino');
+  await cartPage.assertUnitColumnContainsCorrectText('Cappuccino', '$19.00 x 1');
+  await cartPage.assertTotalColumnContainsCorrectText('Cappuccino', '$19.00');
 });

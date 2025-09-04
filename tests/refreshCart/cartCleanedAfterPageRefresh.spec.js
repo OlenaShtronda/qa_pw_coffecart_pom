@@ -4,15 +4,15 @@ import { CartPage } from '../../src/pages/CartPage';
 
 test('Cart cleaned after page refresh', async ({ page }) => {
   const menuPage = new MenuPage(page);
-  const cartPageCappuccino = new CartPage(page, 'Cappuccino');
+  const cartPage = new CartPage(page);
 
   await menuPage.open();
   await menuPage.clickCup('Cappuccino');
   await menuPage.clickCup('Espresso');
   await menuPage.clickCartLink();
-  await cartPageCappuccino.waitForLoading();
-  await cartPageCappuccino.assertItemIsVisible();
-  await cartPageCappuccino.reloadPage();
-  await cartPageCappuccino.assertItemIsHidden();
-  await cartPageCappuccino.assertEmptyCartShowsCorrectMessage();
+  await cartPage.waitForLoading();
+  await cartPage.assertItemIsVisible('Cappuccino');
+  await cartPage.reloadPage();
+  await cartPage.assertItemIsHidden('Cappuccino');
+  await cartPage.assertEmptyCartShowsCorrectMessage();
 });

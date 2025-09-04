@@ -1,15 +1,10 @@
 import { expect } from '@playwright/test';
 
 export class MenuPage {
-  constructor(page, itemName) {
+  constructor(page) {
     this.page = page;
-    this.itemName = itemName;
     this.cartLinkLocator = this.page.getByLabel('Cart page');
     this.checkoutLocator = this.page.getByTestId('checkout');
-    if (itemName) {
-      this.cupLocator = page.getByTestId(itemName);
-      this.cupParentLocator = page.getByRole('listitem').filter({ has: this.cupLocator });
-    }
     this.promoTextLocator = this.page.getByText("It's your lucky day! Get an extra cup of Mocha for $4.");
     this.yesPromoButtonLocator = this.page.getByRole('button', { name: 'Yes, of course!' });
     this.noPromoButtonLocator = this.page.getByRole('button', { name: "Nah, I'll skip." });
@@ -19,8 +14,16 @@ export class MenuPage {
     await this.page.goto('https://coffee-cart.app/');
   }
 
-  async clickCup(itemName = this.itemName) {
-    await this.page.getByTestId(itemName).click();
+  getCupLocator(itemName) {
+    return this.page.getByTestId(itemName);
+  }
+
+  getCupParentLocator(itemName) {
+    return this.page.getByRole('listitem').filter({ has: this.getCupLocator(itemName) });
+  }
+
+  async clickCup(itemName) {
+    await this.getCupLocator(itemName).click();
   }
 
   async clickYesButton() {
@@ -35,9 +38,9 @@ export class MenuPage {
     await this.cartLinkLocator.click();
   }
 
-  async assertCupContainsCorrectCost(cost) {
-    await expect(this.cupParentLocator).toContainText(cost);
-  }
+  async assertCupContainsCorrectCost(itemName, cost) {
+  await expect(this.getCupParentLocator(itemName)).toContainText(cost);
+}
 
   async assertCheckoutContainsCorrectText(checkoutText) {
     await expect(this.checkoutLocator).toContainText(checkoutText);
